@@ -2,7 +2,9 @@
 title: "Shiny Workshop"
 author: "B. W. Lewis, http://illposed.net"
 date: "2/24/2016"
-output: ioslides_presentation
+output:
+  ioslides_presentation:
+    widescreen: true
 ---
 
 ```{r setup, include=FALSE}
@@ -102,6 +104,7 @@ shinyApp(ui, server)
 #
 <img src="hello5.jpg" alt="" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;"/>
 
+# Interlude<br><br>Debugging and reactive network visualization
 
 # Brewery planner<br><br>A not completely serious app example
 
@@ -123,9 +126,11 @@ load(url("http://bwlewis.github.io/Feb2016_Cleveland_R_Meetup/counties.rdata"))
 load(url("http://bwlewis.github.io/Feb2016_Cleveland_R_Meetup/ofhs2010_subset.rdata"))
 
 
-drinking = aggregate(ofhs2010_subset[,c("drinking_rate", "binge")], by=list(s9=ofhs2010_subset$s9), FUN=mean, na.rm=TRUE)
+drinking = aggregate(ofhs2010_subset[,c("drinking_rate", "binge")],
+                     by=list(s9=ofhs2010_subset$s9), FUN=mean, na.rm=TRUE)
 
-drinking$count = aggregate(ofhs2010_subset$s9, by=list(s9=ofhs2010_subset$s9), FUN=length)[,2]
+drinking$count = aggregate(ofhs2010_subset$s9, 
+                           by=list(s9=ofhs2010_subset$s9), FUN=length)[,2]
 
 drinking$adjusted = drinking$drinking_rate / drinking$count
 
@@ -186,3 +191,7 @@ Ideas
 
 - Pick an R example and app-ify it...
 - Maybe you already have something you've worked on, that you can show?
+
+Advanced: Why didn't I talk about observables? Ask me.
+
+Have fun!
