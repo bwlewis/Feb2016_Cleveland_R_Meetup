@@ -189,8 +189,10 @@ shinyApp(ui, server)
 
 Ideas
 
-- Pick an R example and app-ify it...
 - Maybe you already have something you've worked on, that you can show?
+- Pick an R example and app-ify it, some ideas:
+    - Show qqplots sampled from Student's t distribution with varying degrees of freedom
+    - Play around with clustering data("HouseVotes84", "mlbench")
 
 Advanced: Why didn't I talk about observables? Ask me.
 
