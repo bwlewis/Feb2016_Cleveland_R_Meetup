@@ -4,10 +4,6 @@
 # Much of this would work better using data.table, but we keep things
 # minimalist here.
 
-# Download and load data
-load(url("https://github.com/bwlewis/Feb2016_Cleveland_R_Meetup/raw/master/counties.rdata"))
-
-
 #counties = read.table(url("http://www2.census.gov/geo/docs/maps-data/data/gazetteer/counties_list_39.txt"), sep="\t", header=TRUE)
 # The Census Bureau gives us the geographic center of each county, some of which
 # are in Lake Erie! We correct a few of those manually here to help make plots
