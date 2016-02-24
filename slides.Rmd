@@ -1,6 +1,6 @@
 ---
 title: "Shiny Workshop"
-author: "bwlewis"
+author: "B. W. Lewis, http://illposed.net"
 date: "2/24/2016"
 output: ioslides_presentation
 ---
@@ -157,12 +157,10 @@ ui = fluidPage(
 ## Shiny Server
 ```{r eval=FALSE, echo=TRUE}
 server = function(input, output, session) {
-
   pal = reactive({
     i = floor(1 + 10 * data[, input$select] / max(data[, input$select]))
     substr(colorRampPalette(c("blue", "red"))(max(i))[i], 1, 7)
   })  # color, coverted to non-alpha hex RGB values for leaflet (the substr)
-
   rad = reactive({
     2e4 * data[, input$select] / max(data[, input$select])
   })  # radius
@@ -173,7 +171,6 @@ server = function(input, output, session) {
     addCircles(map, lat=data$INTPTLAT, lng=data$INTPTLONG, radius=rad(),
                popup=data$NAME, fillColor=pal(), fillOpacity=0.7, stroke=FALSE)
   })
-
   output$mytable = renderDataTable(data)
 }
 ```
@@ -182,3 +179,10 @@ server = function(input, output, session) {
 ```{r eval=FALSE, echo=TRUE}
 shinyApp(ui, server)
 ```
+
+## Try writing your own simple apps (I'll help!)
+
+Ideas
+
+- Pick an R example and app-ify it...
+- Maybe you already have something you've worked on, that you can show?

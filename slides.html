@@ -35,7 +35,7 @@
       // Author information
       presenters: [
             {
-        name:  'bwlewis' ,
+        name:  'B. W. Lewis, <a href="http://illposed.net" class="uri">http://illposed.net</a>' ,
         company: '',
         gplus: '',
         twitter: '',
@@ -197,11 +197,79 @@ shinyApp(ui, server)</pre>
 
 </article></slide><slide class=''><hgroup><h2>Data sources</h2></hgroup><article  id="data-sources">
 
-<p>Hard to find good Ohio publicly available data sets :(. We use these:</p>
+<p>Hard to find interesting publicly available data sets about Ohio :(. ButI did find these:</p>
 
 <ul>
 <li>Ohio county data <a href='http://www2.census.gov/geo/docs/maps-data/data/gazetteer/counties_list_39.txt' title=''>http://www2.census.gov/geo/docs/maps-data/data/gazetteer/counties_list_39.txt</a></li>
 <li>Medicaid assessment <a href='http://grc.osu.edu/omas/datadownloads/ofhsoehspublicdatasets/' title=''>http://grc.osu.edu/omas/datadownloads/ofhsoehspublicdatasets/</a></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2>Data prep</h2></hgroup><article  id="data-prep">
+
+<pre class = 'prettyprint lang-r'>load(url(&quot;http://bwlewis.github.io/Feb2016_Cleveland_R_Meetup/counties.rdata&quot;))
+load(url(&quot;http://bwlewis.github.io/Feb2016_Cleveland_R_Meetup/ofhs2010_subset.rdata&quot;))
+
+
+drinking = aggregate(ofhs2010_subset[,c(&quot;drinking_rate&quot;, &quot;binge&quot;)], by=list(s9=ofhs2010_subset$s9), FUN=mean, na.rm=TRUE)
+
+drinking$count = aggregate(ofhs2010_subset$s9, by=list(s9=ofhs2010_subset$s9), FUN=length)[,2]
+
+drinking$adjusted = drinking$drinking_rate / drinking$count
+
+data = merge(drinking, counties, by=&quot;s9&quot;)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Shiny UI</h2></hgroup><article  id="shiny-ui">
+
+<pre class = 'prettyprint lang-r'>library(shiny)
+library(DT)
+library(leaflet)
+
+ui = fluidPage(
+  title = &quot;A particularly silly brewery planner&quot;,
+  fluidRow(
+    column(2, h3(&quot;A silly brewery planner&quot;), 
+           selectInput(&quot;select&quot;, label = h3(&quot;Variable&quot;), 
+                       choices = list(&quot;Population&quot; = &quot;POP10&quot;,
+                                       &quot;Drinking rate&quot; = &quot;drinking_rate&quot;,
+                                       &quot;Pop adjusted rate&quot; = &quot;adjusted&quot;,
+                                       &quot;Binge drinking rate&quot; = &quot;binge&quot;))),
+    column(10, leafletOutput(&quot;mymap&quot;, height=700))
+  ),
+  hr(),
+  dataTableOutput(&quot;mytable&quot;)
+)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Shiny Server</h2></hgroup><article  id="shiny-server">
+
+<pre class = 'prettyprint lang-r'>server = function(input, output, session) {
+  pal = reactive({
+    i = floor(1 + 10 * data[, input$select] / max(data[, input$select]))
+    substr(colorRampPalette(c(&quot;blue&quot;, &quot;red&quot;))(max(i))[i], 1, 7)
+  })  # color, coverted to non-alpha hex RGB values for leaflet (the substr)
+  rad = reactive({
+    2e4 * data[, input$select] / max(data[, input$select])
+  })  # radius
+  
+  output$mymap = renderLeaflet({
+    map = addTiles(leaflet())
+    map = setView(map, -83, 39.96, zoom = 7)
+    addCircles(map, lat=data$INTPTLAT, lng=data$INTPTLONG, radius=rad(),
+               popup=data$NAME, fillColor=pal(), fillOpacity=0.7, stroke=FALSE)
+  })
+  output$mytable = renderDataTable(data)
+}</pre>
+
+</article></slide><slide class=''><hgroup><h2>Run it!</h2></hgroup><article  id="run-it">
+
+<pre class = 'prettyprint lang-r'>shinyApp(ui, server)</pre>
+
+</article></slide><slide class=''><hgroup><h2>Try writing your own simple apps (I&#39;ll help!)</h2></hgroup><article  id="try-writing-your-own-simple-apps-ill-help">
+
+<p>Ideas</p>
+
+<ul>
+<li>Pick an R example and app-ify it&#8230;</li>
+<li>Maybe you already have something you&#39;ve worked on, that you can show?</li>
 </ul></article></slide>
 
 
