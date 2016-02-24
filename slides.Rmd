@@ -1,0 +1,123 @@
+---
+title: "Shiny Workshop"
+author: "bwlewis"
+date: "2/24/2016"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Easy to write interactive <br> web apps powered by R
+
+# Apps consist of user interface (UI) code and server code parts
+
+# Apps are *reactive*, a kind of event-driven programming model
+
+## Plan
+
+- Cover basic app design and reactive ideas
+- Explore recent RStudio shiny debugging features
+- Build example apps together
+- App-a-thon (build your own apps)
+
+# Basic app design
+
+## What is an app?
+
+A user-interface (*ui*) object together with a *server* function
+
+Either:
+
+1. Store app UI and server code in ui.R, server.R files.
+2. Supply them as arguments to the shinyApp function directly.
+
+
+## Hello world example
+
+```{r eval=FALSE, echo=TRUE}
+library(shiny)
+
+ui = fluidPage(
+  titlePanel("Hello World"),
+  sliderInput("slider", "Number of points", 10, 100, 10),
+  plotOutput("plot")
+)
+
+server = function(input, output, session)
+{
+  output$plot = renderPlot({
+    N = input$slider
+    plot(rnorm(N), rnorm(N), pch=19, col=4)
+  })
+}
+
+shinyApp(ui, server)
+```
+
+http://shiny.rstudio.com/reference/shiny/latest/
+
+#
+<img src="hello1.jpg" alt="" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;"/>
+
+#
+<img src="hello2.jpg" alt="" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;"/>
+
+#
+<img src="hello3.jpg" alt="" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;"/>
+
+#
+<img src="hello4.jpg" alt="" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;"/>
+
+
+## Reactive programming
+
+You too can write reactive functions. Shiny magically evaluates reactives only when they need to run. This makes program execution very efficient.
+
+##
+```{r eval=FALSE, echo=TRUE}
+library(shiny)
+
+ui = fluidPage(
+  titlePanel("Hello World"),
+  sliderInput("slider", "Number of points", 10, 100, 10),
+  plotOutput("plot")
+)
+
+server = function(input, output, session)
+{
+  N = reactive({
+    list(x=rnorm(input$slider), y=rnorm(input$slider)
+  })     # NOTE! N is a **function**
+    
+  output$plot = renderPlot({
+    plot(N()$x, N()$y, pch=19, col=4)
+  })
+}
+
+shinyApp(ui, server)
+```
+
+#
+<img src="hello5.jpg" alt="" style="width: 100%; height: 100%; position: absolute; left: 0; top: 0;"/>
+
+
+# Brewery planner<br><br>A not completely serious app example
+
+## App idea
+
+Explore beer/alcohol consumption by Ohio county.
+
+## Data sources
+
+Hard to find interesting publicly available data sets about Ohio :(. ButI did find these:
+
+* Ohio county data  http://www2.census.gov/geo/docs/maps-data/data/gazetteer/counties_list_39.txt
+* Medicaid assessment    http://grc.osu.edu/omas/datadownloads/ofhsoehspublicdatasets/
+
+## Data prep
+
+```{r eval=FALSE, echo=TRUE}
+
+```
