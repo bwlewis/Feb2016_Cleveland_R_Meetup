@@ -119,5 +119,66 @@ Hard to find interesting publicly available data sets about Ohio :(. ButI did fi
 ## Data prep
 
 ```{r eval=FALSE, echo=TRUE}
+load(url("http://bwlewis.github.io/Feb2016_Cleveland_R_Meetup/counties.rdata"))
+load(url("http://bwlewis.github.io/Feb2016_Cleveland_R_Meetup/ofhs2010_subset.rdata"))
 
+
+drinking = aggregate(ofhs2010_subset[,c("drinking_rate", "binge")], by=list(s9=ofhs2010_subset$s9), FUN=mean, na.rm=TRUE)
+
+drinking$count = aggregate(ofhs2010_subset$s9, by=list(s9=ofhs2010_subset$s9), FUN=length)[,2]
+
+drinking$adjusted = drinking$drinking_rate / drinking$count
+
+data = merge(drinking, counties, by="s9")
+```
+
+## Shiny UI
+```{r eval=FALSE, echo=TRUE}
+library(shiny)
+library(DT)
+library(leaflet)
+
+ui = fluidPage(
+  title = "A particularly silly brewery planner",
+  fluidRow(
+    column(2, h3("A silly brewery planner"), 
+           selectInput("select", label = h3("Variable"), 
+                       choices = list("Population" = "POP10",
+                                       "Drinking rate" = "drinking_rate",
+                                       "Pop adjusted rate" = "adjusted",
+                                       "Binge drinking rate" = "binge"))),
+    column(10, leafletOutput("mymap", height=700))
+  ),
+  hr(),
+  dataTableOutput("mytable")
+)
+```
+
+## Shiny Server
+```{r eval=FALSE, echo=TRUE}
+server = function(input, output, session) {
+
+  pal = reactive({
+    i = floor(1 + 10 * data[, input$select] / max(data[, input$select]))
+    substr(colorRampPalette(c("blue", "red"))(max(i))[i], 1, 7)
+  })  # color, coverted to non-alpha hex RGB values for leaflet (the substr)
+
+  rad = reactive({
+    2e4 * data[, input$select] / max(data[, input$select])
+  })  # radius
+  
+  output$mymap = renderLeaflet({
+    map = addTiles(leaflet())
+    map = setView(map, -83, 39.96, zoom = 7)
+    addCircles(map, lat=data$INTPTLAT, lng=data$INTPTLONG, radius=rad(),
+               popup=data$NAME, fillColor=pal(), fillOpacity=0.7, stroke=FALSE)
+  })
+
+  output$mytable = renderDataTable(data)
+}
+```
+
+## Run it!
+```{r eval=FALSE, echo=TRUE}
+shinyApp(ui, server)
 ```
